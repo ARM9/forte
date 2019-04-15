@@ -1,0 +1,10 @@
+{
+  "name": "forte",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "author": "me",
+  "license": "ISC",
+  "devDependencies": {
+  }
+}
