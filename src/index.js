@@ -1,20 +1,18 @@
 'use strict';
 
-const notes_sharp = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'],
-      notes_flat = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'],
-      notes = ['C','C#','Db','D','D#','Eb','E','F','F#','Gb','G','G#','Ab','A','A#','Bb','B'],
-      circle_of_fifths = ['C','G','D','A','E','B','F#','Db','Ab','Eb','Bb','F'];
-    // ['Cb','Gb','Db','Ab','Eb','Bb','F','C','G','D','A','E','B','F#','C#'];
+const inlays = [0,3,5,7,9,12,15,17,19,21,24,27,29,31];
 
-const app = $('#root');
+const app = $id('app');
+
+let query = new URLSearchParams(location.search.slice(1));
 
 function isValidNote(note) {
-    return note.match(/[A-Ga-g](#*|b*)/);
+    return note ? note.match(/[A-Ga-g](#*|b*)/) : false;
 }
 
 function intervalToNote (root, interval, flats = false) {
     root = capitalize(root);
-    let notes = (flats ? notes_flat : notes_sharp),
+    let notes = (flats ? Notes_flat : Notes_sharp),
         start = notes.indexOf(root);
     if (start < 0) {
         start = notes.indexOf(getEnharmonicEquivalent(root));
@@ -33,13 +31,13 @@ function intervalsToNotes (root, intervals, flats = false) {
 }
 
 function getEnharmonicEquivalent(note) {
-    let sharp_index = notes_sharp.indexOf(note);
+    let sharp_index = Notes_sharp.indexOf(note);
     if (sharp_index > -1)
-        return notes_flat[sharp_index];
+        return Notes_flat[sharp_index];
 
-    let flat_index = notes_flat.indexOf(note);
+    let flat_index = Notes_flat.indexOf(note);
     if (flat_index > -1)
-        return notes_sharp[flat_index];
+        return Notes_sharp[flat_index];
     throw new Error(`Invalid note ${note}`);
 }
 
@@ -53,6 +51,27 @@ function getFretWidth(f) {
         //r = (n-f)/f;
     //return f > 0 ? `${}` : '3%';
     return f > 0 ? `${100/(f+15)}%` : `3%`;
+}
+
+class NoteHighlight {
+    constructor (note) {
+        this.note = note;
+    }
+
+    render ({classList = '', empty = false} = {}) {
+        this.el = $create('div');
+        if (!empty) {
+            this.el.classList.add('note');
+            this.el.innerHTML = `${this.note}`;
+        } else {
+            this.el.innerHTML = '&nbsp;';
+        } 
+
+        if (classList) {
+            this.el.classList.add(classList);
+        }
+        return this.el;
+    }
 }
 
 class String {
@@ -71,28 +90,26 @@ class String {
         for (let i = 0, n = getFretCount(); i <= n; i++) {
             let f = $create('span'),
                 note = this.getNote(i, $id('flats').checked);
-            f.classList.add('note');
+            f.classList.add('fret');
 
             f.style.width = getFretWidth(i);
 
-            if (i > 0 && Number.isInteger(i / 12)) {
-                f.classList.add('inlay');
-            }
-
+            if (inlays.indexOf(i) >= 0) f.classList.add('inlay');
+            //if (Number.isInteger(i / 12)) f.classList.add('inlay');
 
             if (highlights && highlights.length > 0) {
                 let hi = highlights.indexOf(note);
+                let noteEl = new NoteHighlight(note);
                 if(hi > -1) {
-                    f.innerHTML = `${note}`;
                     if (hi === 0)
-                        f.classList.add('root');
+                        f.appendChild(noteEl.render({classList: 'root'}));
                     else
-                        f.classList.add('highlight');
+                        f.appendChild(noteEl.render({classList: 'highlight'}));
                 } else {
                     if ($id('show-all-notes').checked)
-                        f.innerHTML = `${note}`;
+                        f.appendChild(noteEl.render());
                     else
-                        f.innerHTML = `-`;
+                        f.appendChild(noteEl.render({empty: true}));
                 }
             } else {
                 f.innerHTML = `${note}`;
@@ -130,7 +147,7 @@ class Fretboard {
         for (let i = 0, n = getFretCount(); i <= n; i++) {
             let f = $create('span');
             f.classList.add('fretnr');
-            if ([1,3,5,7,9,12,15,17,19,21,24,27,29,31].indexOf(i) >= 0)
+            if (inlays.indexOf(i) >= 0)
                 f.innerHTML = `${i}`;
 
             f.style.width = getFretWidth(i);
@@ -154,32 +171,52 @@ function getTuning () {
     return notes;
 }
 
-function render_fretboard({note, scale, tuning} = {}) {
-    let frets = new Fretboard(tuning || getTuning());
+function render_fretboard ({note, scale, tuning} = {}) {
     note = note || $id('note').value;
     scale = scale || scales_chords[$id('scale').value.trim()];
 
     try {
-    if (!isValidNote(note))
-        throw new Error(`Invalid note ${note}`);
+        let fretboard = new Fretboard(tuning || getTuning());
 
-    let notes = intervalsToNotes(note, scale, $id('flats').checked);
-    $id('notes-display').textContent = notes ? notes.join(' ') : '';
+        if (!isValidNote(note))
+            throw new Error(`Invalid note ${note}`);
 
-    frets.setScale(note, scale);
-    app.innerHTML = "";
-    app.appendChild(frets.render());
+        let notes = intervalsToNotes(note, scale, $id('flats').checked);
+        $id('notes-display').textContent = notes ? notes.join(' ') : '';
+
+        fretboard.setScale(note, scale);
+        app.innerHTML = "";
+        app.appendChild(fretboard.render());
     } catch(err) {
+        console.error(err)
         alert(err);
     }
 }
 
-function app_render() {
+function app_render () {
+    scale_view();
+    //let view = query.get('view');
+
+    //$id('view').value = view;
+
+    //switch (true) {
+        //case view === 'scale_finder':
+            //scale_finder_view();
+            //break;
+        //case view === 'scales':
+        //default:
+            //scale_view();
+            //break;
+    //}
+}
+
+function scale_view () {
     // scale/chord select box
     let sel = $id('scale'),
         scale_names = Object.keys(scales_default),
         chord_names = Object.keys(chords_default)
 
+    $id('scales-view').hidden = false;
     sel.innerHTML = ''
     let grp = $create('optgroup');
     grp.label = '--- Scales ---';
@@ -207,16 +244,23 @@ function app_render() {
     let random_scale_btn = $id('random-scale');
 
     random_scale_btn.onclick = function(e) {
-        $id('note').value = notes[(Math.random()*notes.length)|0];
+        $id('note').value = Notes[(Math.random()*Notes.length)|0];
         $id('scale').selectedIndex = (Math.random()*$id('scale').length)|0;
         this.form.submit();
     };
     updateForm();
+
+    let scale;
+    if (query.get('intervals-in') && query.get('show-custom') == 'true') {
+        scale = $id('intervals-in').value.trim().split(' ')
+                            .map(n => parseInt(n));
+    } 
+    render_fretboard({scale});
 }
 
-function updateForm() {
-    let query = new URLSearchParams(location.search.slice(1)),
-        fields = ['note','scale','tuning','frets','name-in','intervals-in','show-custom','tuning']
+function updateForm () {
+    //let query = new URLSearchParams(location.search.slice(1)),
+    let fields = ['note','scale','tuning','frets','name-in','intervals-in','show-custom','tuning']
 
     fields.map(n => {
         if (query.get(n))
@@ -234,7 +278,17 @@ function updateForm() {
         scale = $id('intervals-in').value.trim().split(' ')
                             .map(n => parseInt(n));
     } 
-    render_fretboard({scale});
+}
+
+function updateRootNote (note) {
+    if (note.length > 1) {
+        const last = note.substr(-1);
+        if (last === 'b') {
+            $id('flats').checked = true;
+        } else if (last === '#') {
+            $id('flats').checked = false;
+        }
+    }
 }
 
 function clearCustomScale () {

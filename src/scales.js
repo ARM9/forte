@@ -1,5 +1,11 @@
 'use strict';
 
+const Notes_sharp = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'],
+      Notes_flat = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'],
+      Notes = ['C','C#','Db','D','D#','Eb','E','F','F#','Gb','G','G#','Ab','A','A#','Bb','B'],
+      Circle_of_fifths = ['C','G','D','A','E','B','F#','Db','Ab','Eb','Bb','F'];
+    // ['Cb','Gb','Db','Ab','Eb','Bb','F','C','G','D','A','E','B','F#','C#'];
+
 const scales_default = {
     'EMPTY': [],
     'major': [0,2,4,5,7,9,11],
@@ -17,19 +23,30 @@ const scales_default = {
     'minor pentatonic': [0,3,5,7,10],
     'minor blues': [0,3,5,6,7,10],
 
+    'bebop major': [0,2,4,5,7,8,9,11],
+    'bebop mixolydian': [0,2,4,5,7,9,10,11],
+    'bebop minor': [0,2,3,4,5,7,9,10],
+    'bebop dorian': [0,2,3,5,7,9,10,11],
+    'bebop melodic minor': [0,2,3,5,7,8,9,11],
+
     'melodic minor':  [0,2,3,5,7,9,11],
-
-    'altered':          [0,1,3,4,6,8,10],
-        //'ionian #1':        [1,2,4,5,7,9,11],
-    'dorian #7':        [0,2,3,5,7,9,11],
-    'phrygian #6':      [0,1,3,5,7,9,10],
+    'dorian b2':        [0,1,3,5,7,9,10],
     'lydian #5':        [0,2,4,6,8,9,11],
-    'mixolydian #4':    [0,2,4,6,7,9,10],
-    'aeolian #3':       [0,2,4,5,7,8,10],
-    'locrian #2':       [0,2,3,5,6,8,10],
+    'lydian b7':        [0,2,4,6,7,9,10],
+    'mixolydian b6':    [0,2,4,5,7,8,10],
+    'minor b5':         [0,2,3,5,6,8,10],
+    'altered':          [0,1,3,4,6,8,10],
 
-    'harmonic minor':   [0,2,3,5,7,8,11],
-        'aeolian #7':       [0,2,3,5,7,8,11],
+    // melodic minor modes alternative names
+    //'dorian #7':        [0,2,3,5,7,9,11],
+    //'phrygian #6':      [0,1,3,5,7,9,10],
+    //'lydian #5':        [0,2,4,6,8,9,11],
+    //'mixolydian #4':    [0,2,4,6,7,9,10],
+    //'aeolian #3':       [0,2,4,5,7,8,10],
+    //'locrian #2':       [0,2,3,5,6,8,10],
+    //'ionian #1':        [1,2,4,5,7,9,11],
+
+    'harmonic minor':   [0,2,3,5,7,8,11], //'aeolian #7':     [0,2,3,5,7,8,11],
     'locrian #6':       [0,1,3,5,6,9,10],
     'ionian #5':        [0,2,4,5,8,9,11],
     'dorian #4':        [0,2,3,6,7,9,10],
@@ -38,15 +55,23 @@ const scales_default = {
     'ultralocrian':     [0,1,3,4,6,8,9],
         //'mixolydian #1':    [1,2,4,5,7,9,10],
 
-    'harmonic major': [0,2,4,5,7,8,11],
+    'harmonic major':  [0,2,4,5,7,8,11],
+    'dorian b5':       [0,2,3,5,6,9,10],
+    'phrygian b4':     [0,1,3,4,7,8,10],
+    'lydian b3':       [0,2,3,6,7,9,11],
+    'mixolydian b2':   [0,1,4,5,7,9,10],
+    'lydian #2 #5':    [0,3,4,6,8,9,11],   //'aeolian b1'
+    'locrian bb7':      [0,1,3,5,6,8,9],
 
     'double harmonic major': [0,1,4,5,7,8,11],
-    'hungarian minor': [0,2,3,6,7,8,11],
+    'melodic minor #5': [0,2,3,5,8,9,11],
+
+    'hungarian minor':  [0,2,3,6,7,8,11],
 
     'neapolitan major': [0,1,3,5,7,9,11],
     'neapolitan minor': [0,1,3,5,7,8,11],
 
-    'weirdo beirdo minor': [0,2,3,6,7,8,10],
+    //'weirdo beirdo minor': [0,2,3,6,7,8,10],
 
     'simhen': [0,2,3,6,7,8,11],
 
@@ -109,3 +134,20 @@ function removeScale(name) {
     delete reverse_scales_chords[intervals];
 }
 
+class Scale {
+    constructor (type, opts) {
+        this.type = type;
+        Object.assign(this, opts);
+    }
+
+    getNotes () {
+        switch (type) {
+            case 'intervals':
+                return intervalsToNotes (this.root, this.intervals, this.flats);
+                break;
+            case 'notes':
+                return this.notes;
+                break;
+        }
+    }
+}

@@ -18,47 +18,77 @@ form {
 }
 .string {
     font-family: monospace, monospace;
-    background-color: #bb784c;
+    background-color: #c08860;
     line-height: 2rem;
     display: block;
 
     /*background-image: url('string.png');
     background-repeat: repeat-x;*/
 }
-.note {
+.fret {
     box-sizing: border-box;
     display: inline-block;
     /*border: 2px solid;*/
-    border-right: solid 2px #000;
+    border-right: solid 3px #333;
     /*border-left: solid 1px #000;*/
-        
+    background-image: url('string2.png');
+    background-repeat: repeat-x;
+    background-position: center;
     text-align: center;
 }
-.note.inlay {
-    color: #fefefe;
+.fret.inlay {
+    background-color: #cca06e;
 }
 .note.root {
-    background-color: #f3ea6b;
+    background-color: #fff068;
     /*border-radius: 15px;*/
     /*border: 3px ridge #7fa;*/
 }
 .note.highlight {
-    background-color: #88bfef;
+    background-color: #88e0ff;
+    /*background-color: #c85050;*/
     /*border-radius: 15px;*/
     /*border: 3px ridge #7fa;*/
 }
+
+.note {
+    display: inline-block;
+    margin: auto;
+    border-radius: 12px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    vertical-align: middle;
+    text-align: center;
+}
+
 .fretnumbers { 
     font-family: monospace, monospace;
 }
 .fretnr {
     box-sizing: border-box;
     display: inline-block;
-    border-right: solid 2px #000;
-    border-left: solid 2px #000;
+    border-right: solid 3px #333;
+    border-left: solid 3px #333;
     text-align: center;
 }
 .fretnr.inlay {
     background-color: #fefefe;
+}
+
+.cool-list {
+    background-color: #eef;
+    display: inline-block;
+}
+
+.cool-list .item {
+    padding: 3px;
+
+}
+
+.cool-list .item:hover {
+    background-color: #acf;
+    padding: 3px;
 }
 
 input[type='number']{
@@ -67,34 +97,58 @@ input[type='number']{
         </style>
     </head>
     <body>
-        <div class="app" id="root">
+        <div class="app" id="app">
         </div>
         <form id='app-form' action='' method='GET'>
-            <label>Scale/chord: <input id='note' name='note' style='width:30px' type='text' value='D' onchange='this.form.submit()' /></label>
+            <!--<input type='hidden' name='view' id='view' />
+            <div id='scale-finder-view' hidden>
+            Scales<br/>
+                <div class='cool-list'>
+                    <div class='item'>aaaaaaa</div>
+                    <div class='item'>b</div>
+                </div><br/>
+            <label>Intervals <input type='text' name='intervals-finder' /></label>
+
+            <hr/>
+            </div>-->
+
+            <label>Scale/chord: <input id='note' name='note' style='width:30px' type='text' value='D' onchange='updateRootNote(this.value); this.form.submit()' /></label>
             <select id='scale' name='scale' onchange='setShowCustom(false); this.form.submit()'></select>
             <input type='hidden' id='show-custom' name='show-custom' value='false' />
             <span id='notes-display' style='font-family: monospace, monospace'></span>
             <label><input type='checkbox' id='flats' name='flats' onchange='this.form.submit()' /> flats</label>
             <br/>
+
             <label>show all notes: <input id='show-all-notes' name='show-all-notes' type='checkbox' onchange='this.form.submit()' /></label>
             <br/>
+
             <label>tuning: <input id='tuning' name='tuning' type='text' value='E A D G B E' onchange='this.form.submit()' /></label>
             <br/>
+
             <label>frets: <input id='frets' name='frets' type='number' value='24' onchange='this.form.submit()' /></label>
             <input id='random-scale' type='button' value='random' style='float:right' />
-            <br/>
-            <hr/>
-            <legend>Custom scale</legend>
-            <label>name <input id='name-in' name='name-in' type='text' placeholder='major' /></label>
-            <br/>
-            <label>intervals <input id='intervals-in' name='intervals-in' type='text' placeholder='0 2 4 5 7 9 11' onblur='setShowCustom(true); this.form.submit()' onchange='setShowCustom(true); this.form.submit()' /></label>
-            <input type='button' value='save' onclick='Storage.saveScale(); this.form.submit();' />
-            <input style='float:right' type='button' value='delete selected' onclick='if(confirm("You sure?")) {Storage.deleteScale(); this.form.submit()}' />
-            <input style='float:right' type='button' value='clear' onclick='clearCustomScale();this.form.submit();' />
+            <div id='scales-view' hidden>
+
+                <hr/>
+
+                <legend>Custom scale</legend>
+                <label>name <input id='name-in' name='name-in' type='text' placeholder='major' /></label>
+                <br/>
+
+                <label>intervals <input id='intervals-in' name='intervals-in' type='text' placeholder='0 2 4 5 7 9 11' onblur='setShowCustom(true); this.form.submit()' onchange='setShowCustom(true); this.form.submit()' /></label>
+                <input type='button' value='save' onclick='Storage.saveScale(); this.form.submit();' />
+                <input style='float:right' type='button' value='delete selected' onclick='if(confirm("You sure?")) {Storage.deleteScale(); this.form.submit()}' />
+                <input style='float:right' type='button' value='clear' onclick='clearCustomScale();this.form.submit();' />
+            </div>
         </form>
+        <hr />
+        <!--<a href='?view=scales'>Scales</a>-->
+        <!--<a href='?view=scale_finder'>Scale finder</a>-->
         <script src='src/jqueery.js'></script>
         <script src='src/scales.js'></script>
         <script src='src/localStorage.js'></script>
+        <script src='src/scale_view.js'></script>
+        <script src='src/scale_finder.js'></script>
         <script src='src/index.js'></script>
     </body>
 </html>
