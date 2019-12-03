@@ -1,3 +1,4 @@
+'use strict';
 
 /*function find_matching_scales(notes) {
     notes.sort 

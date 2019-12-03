@@ -42,15 +42,19 @@ function getEnharmonicEquivalent(note) {
 }
 
 function getFretCount() {
-    return $id('frets').value||24;
+    return parseInt($id('frets').value)||24;
 }
 
+const lerp = (a,b,t) => a*(1-t) + b*t;
+
 function getFretWidth(f) {
-    //`${1100/(i+15)}px`;
-    //let n = getFretCount(),
-        //r = (n-f)/f;
-    //return f > 0 ? `${}` : '3%';
-    return f > 0 ? `${100/(f+15)}%` : `3%`;
+    const n = parseInt(getFretCount());
+
+    if (document.documentElement.clientWidth >= 1024)
+        return f > 0 ? `${(98/n)+lerp(1.6,-1.6,f/n)}%` : `3%`;
+    else
+        return `${100/(n+1)}%`;
+    //return f > 0 ? `${100/(f+15)}%` : `3%`;
 }
 
 class NoteHighlight {

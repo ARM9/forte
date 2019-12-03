@@ -1,3 +1,4 @@
+'use strict';
 
 const Storage = {
     init: function () {
