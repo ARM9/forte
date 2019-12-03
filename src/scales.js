@@ -25,9 +25,9 @@ const scales_default = {
 
     'bebop major': [0,2,4,5,7,8,9,11],
     'bebop mixolydian': [0,2,4,5,7,9,10,11],
-    'bebop minor': [0,2,3,4,5,7,9,10],
     'bebop dorian': [0,2,3,5,7,9,10,11],
     'bebop melodic minor': [0,2,3,5,7,8,9,11],
+    'bebop minor': [0,2,3,4,5,7,9,10],
 
     'melodic minor':  [0,2,3,5,7,9,11],
     'dorian b2':        [0,1,3,5,7,9,10],
